@@ -7,7 +7,7 @@ data class CreateProductoRequest(
     val name: String,
     val descripcion: String,
     val price: Double,
-    val imageBase64: String,   // URL de Cloudinary
+    val imageBase64: String,   // 🔵 ahora será la URL de Cloudinary
     val visible: Boolean,
-    val categoriaId: Int
+    val categoriaId: Int?
 )

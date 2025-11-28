@@ -1,9 +1,8 @@
 package com.leny.yanel.app.api.viewmodel
 
-import android.app.Application
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leny.yanel.app.api.data.TokenDataStore
 import com.leny.yanel.app.api.model.CreateProductoRequest
@@ -13,12 +12,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AgregarProductoViewModel(
-    application: Application,
-    private val productosService: ProductosService = ProductosService(),
-    private val cloudinaryService: CloudinaryService = CloudinaryService(),
-    private val tokenDataStore: TokenDataStore = TokenDataStore()
-) : AndroidViewModel(application) {
+class AgregarProductoViewModel : ViewModel() {
+
+    private val productosService = ProductosService()
+    private val cloudinaryService = CloudinaryService()
 
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving
@@ -37,44 +34,20 @@ class AgregarProductoViewModel(
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
-            _isSaving.value = true
-            _error.value = null
-
             try {
-                if (nombre.isBlank() || descripcion.isBlank() || precioTexto.isBlank()) {
-                    _error.value = "Todos los campos son obligatorios"
-                    return@launch
-                }
+                _isSaving.value = true
+                _error.value = null
 
                 val precio = precioTexto.toDoubleOrNull()
-                if (precio == null) {
-                    _error.value = "Precio inválido"
-                    return@launch
-                }
+                    ?: throw Exception("Precio inválido")
 
-                if (categoriaId == null) {
-                    _error.value = "Selecciona una categoría"
-                    return@launch
-                }
+                if (imagenUri == null) throw Exception("Selecciona una imagen")
 
-                if (imagenUri == null) {
-                    _error.value = "Selecciona una imagen"
-                    return@launch
-                }
+                // 🔵 SUBIR A CLOUDINARY
+                val imageUrl = cloudinaryService.uploadImage(context, imagenUri)
 
-                val token = tokenDataStore.getToken()   // adapta igual que en ProductosVM
-                if (token.isNullOrBlank()) {
-                    _error.value = "No hay token de sesión"
-                    return@launch
-                }
+                val token = TokenDataStore.token ?: ""
 
-                // 1) Subir imagen a Cloudinary
-                val imageUrl = cloudinaryService.uploadImage(
-                    context = context,
-                    imageUri = imagenUri
-                )
-
-                // 2) Crear request
                 val request = CreateProductoRequest(
                     name = nombre,
                     descripcion = descripcion,
@@ -84,12 +57,11 @@ class AgregarProductoViewModel(
                     categoriaId = categoriaId
                 )
 
-                // 3) Llamar API
                 productosService.crearProducto(token, request)
-
                 onSuccess()
+
             } catch (e: Exception) {
-                _error.value = "Error al guardar: ${e.message}"
+                _error.value = e.message
             } finally {
                 _isSaving.value = false
             }
