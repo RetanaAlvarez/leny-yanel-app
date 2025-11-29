@@ -6,11 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -26,35 +21,28 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AppLenyyanellTheme {
-                val navController = rememberNavController()
-
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    AppNavHost(navController)
+                    val navController = rememberNavController()
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "login"
+                    ) {
+
+                        composable("login") {
+                            LoginScreen(navController)
+                        }
+
+                        composable("productos") {
+                            ProductosScreen(navController)
+                        }
+
+                        composable("agregarProducto") {
+                            AgregarProductoScreen(navController)
+                        }
+                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun AppNavHost(navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = "login"
-    ) {
-        // Pantalla de login
-        composable("login") {
-            LoginScreen(navController)
-        }
-
-        // Listado de productos
-        composable("productos") {
-            ProductosScreen(navController)
-        }
-
-        // Pantalla para agregar producto
-        composable("agregarProducto") {
-            AgregarProductoScreen(navController)
         }
     }
 }

@@ -13,7 +13,7 @@ object ApiClient {
         install(ContentNegotiation) {
             json(
                 Json {
-                    ignoreUnknownKeys = true  // si el back manda campos extras, no truena
+                    ignoreUnknownKeys = true
                     isLenient = true
                 }
             )
@@ -23,6 +23,6 @@ object ApiClient {
         }
     }
 
-    // Cambia esto si tu API usa otro path base
-    const val BASE_URL = "https://backlenylannel.onrender.com/"
+    // base del backend
+    const val BASE_URL = "https://backlenylannel.onrender.com"
 }

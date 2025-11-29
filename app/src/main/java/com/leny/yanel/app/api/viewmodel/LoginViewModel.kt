@@ -1,7 +1,6 @@
 package com.leny.yanel.app.api.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.leny.yanel.app.api.data.TokenDataStore
@@ -21,30 +20,30 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
     val uiState: StateFlow<LoginUiState> = _uiState
 
     fun login(username: String, password: String, onSuccess: () -> Unit) {
-
-        if (username.isBlank() || password.isBlank()) {
-            _uiState.value = LoginUiState(
-                loading = false,
-                error = "Usuario y contraseña son obligatorios"
-            )
-            return
-        }
-
         viewModelScope.launch {
-            _uiState.value = LoginUiState(loading = true)
+            if (username.isBlank() || password.isBlank()) {
+                _uiState.value = LoginUiState(
+                    loading = false,
+                    error = "Por favor llena usuario y contraseña"
+                )
+                return@launch
+            }
 
             try {
+                _uiState.value = LoginUiState(loading = true, error = null)
 
                 val token = AuthService.login(username, password)
+
+                // guardar token
                 TokenDataStore.saveToken(getApplication(), token)
 
+                _uiState.value = LoginUiState(loading = false, error = null)
                 onSuccess()
 
             } catch (e: Exception) {
-                Log.e("LoginViewModel", "Error en login", e)
                 _uiState.value = LoginUiState(
                     loading = false,
-                    error = "Credenciales incorrectas o error de conexión"
+                    error = e.message ?: "Error desconocido"
                 )
             }
         }

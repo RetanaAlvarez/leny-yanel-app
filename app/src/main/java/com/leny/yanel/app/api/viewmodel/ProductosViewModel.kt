@@ -1,17 +1,17 @@
 package com.leny.yanel.app.api.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.leny.yanel.app.api.data.TokenDataStore
 import com.leny.yanel.app.api.model.Producto
 import com.leny.yanel.app.api.service.ProductosService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class ProductosViewModel : ViewModel() {
-
-    private val service = ProductosService()
+class ProductosViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _productos = MutableStateFlow<List<Producto>>(emptyList())
     val productos: StateFlow<List<Producto>> = _productos
@@ -22,9 +22,14 @@ class ProductosViewModel : ViewModel() {
     fun cargarProductos() {
         viewModelScope.launch {
             try {
-                val token = TokenDataStore.token ?: ""
-                val response = service.obtenerProductos(token)
+                val ctx = getApplication<Application>()
+                val token = TokenDataStore.getTokenFlow(ctx).first()
+                    ?: throw Exception("No hay token guardado")
+
+                val response = ProductosService.obtenerProductos(token)
                 _productos.value = response.content
+                _error.value = null
+
             } catch (e: Exception) {
                 _error.value = "Error al cargar productos: ${e.message}"
             }

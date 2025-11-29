@@ -9,7 +9,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-
 import com.leny.yanel.app.api.viewmodel.LoginViewModel
 
 @Composable
@@ -20,7 +19,6 @@ fun LoginScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // 🔥 AQUÍ YA NO FALLA
     val uiState = vm.uiState.collectAsState().value
 
     Column(
@@ -31,7 +29,6 @@ fun LoginScreen(
     ) {
 
         Text("Panel Admin Leny & Yanel", style = MaterialTheme.typography.headlineMedium)
-
         Spacer(Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -67,12 +64,9 @@ fun LoginScreen(
             Text(if (uiState.loading) "Entrando..." else "Entrar")
         }
 
-        if (uiState.error != null) {
-            Text(
-                text = uiState.error!!,
-                color = MaterialTheme.colorScheme.error
-            )
+        uiState.error?.let { err ->
+            Spacer(Modifier.height(12.dp))
+            Text(text = err, color = MaterialTheme.colorScheme.error)
         }
-
     }
 }

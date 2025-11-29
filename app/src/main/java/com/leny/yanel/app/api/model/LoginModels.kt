@@ -3,18 +3,12 @@ package com.leny.yanel.app.api.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Producto(
-    val id: Int,
-    val name: String,
-    val descripcion: String,
-    val price: Double,
-    val imageBase64: String,
-    val visible: Boolean,
-    val categoria: Categoria?
+data class LoginRequest(
+    val username: String,
+    val password: String
 )
 
 @Serializable
-data class Categoria(
-    val id: Int,
-    val nombre: String
+data class LoginResponse(
+    val token: String
 )

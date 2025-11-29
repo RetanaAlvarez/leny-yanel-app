@@ -30,7 +30,6 @@ fun AgregarProductoScreen(
     var precio by remember { mutableStateOf("") }
     var visible by remember { mutableStateOf(true) }
 
-    // categorías por ahora fijas
     val categorias = listOf(
         1 to "Esferas de cristal",
         2 to "Mesa decorativa"
@@ -43,7 +42,6 @@ fun AgregarProductoScreen(
     val isSaving by vm.isSaving.collectAsState()
     val error by vm.error.collectAsState()
 
-    // Picker de imagen
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -88,14 +86,9 @@ fun AgregarProductoScreen(
 
         Spacer(Modifier.height(8.dp))
 
-        // Categoría
         Text("Categoría")
         Spacer(Modifier.height(4.dp))
-
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             categorias.forEach { (id, nombreCat) ->
                 FilterChip(
                     selected = categoriaSeleccionada == id,
@@ -111,10 +104,7 @@ fun AgregarProductoScreen(
         Spacer(Modifier.height(8.dp))
 
         Row {
-            Checkbox(
-                checked = visible,
-                onCheckedChange = { visible = it }
-            )
+            Checkbox(checked = visible, onCheckedChange = { visible = it })
             Text("Producto visible en la tienda")
         }
 
@@ -143,11 +133,8 @@ fun AgregarProductoScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        if (error != null) {
-            Text(
-                text = error ?: "",
-                color = MaterialTheme.colorScheme.error
-            )
+        error?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error)
             Spacer(Modifier.height(8.dp))
         }
 
